@@ -70,7 +70,10 @@ class TimeTrackerApp:
         self.life_area_dropdown = ft.Dropdown(label="Life Area", options=[], expand=True)
         
         self.task_list = ft.ListView(expand=True)
-        self.stats_view = ft.Column()
+        self.stats_view = ft.Column(
+            scroll=ft.ScrollMode.AUTO,
+            expand=True
+        )
         
         add_task_btn = ft.ElevatedButton("Add Task", on_click=self.add_task)
         manage_projects_btn = ft.ElevatedButton("Manage Projects", on_click=self.show_manage_projects)
@@ -107,6 +110,153 @@ class TimeTrackerApp:
         
         self.update_ui()
 
+#Статистика
+
+    def update_ui(self):
+        self.update_dropdowns()
+        self.update_tags()
+        self.update_task_list()
+        self.update_stats_view()  # Добавлен вызов обновления статистики
+        self.page.update()
+    
+    def update_stats_view(self):
+        # Собираем данные для статистики
+        project_stats = self.calculate_stats("project")
+        life_area_stats = self.calculate_stats("life_area")
+        tag_stats = self.calculate_stats("tags")
+        
+        # Создаем диаграммы
+        project_chart = self.create_pie_chart(project_stats, "Time by Projects")
+        life_area_chart = self.create_pie_chart(life_area_stats, "Time by Life Areas")
+        tag_chart = self.create_pie_chart(tag_stats, "Time by Tags")
+        
+        # Обновляем представление статистики
+        self.stats_view.controls = [
+            ft.Text("Statistics", size=24, weight=ft.FontWeight.BOLD),
+            project_chart,
+            life_area_chart,
+            tag_chart,
+        ]
+    
+    def calculate_stats(self, category):
+        stats = {}
+        for task in self.tasks:
+            total_seconds = task.get_current_time().total_seconds()
+            
+            if category == "project":
+                key = task.project or "No Project"
+                if key not in stats:
+                    stats[key] = 0
+                stats[key] += total_seconds
+            
+            elif category == "life_area":
+                key = task.life_area or "No Life Area"
+                if key not in stats:
+                    stats[key] = 0
+                stats[key] += total_seconds
+            
+            elif category == "tags":
+                if not task.tags:
+                    key = "No Tags"
+                    if key not in stats:
+                        stats[key] = 0
+                    stats[key] += total_seconds
+                else:
+                    for tag in task.tags:
+                        if tag not in stats:
+                            stats[tag] = 0
+                        stats[tag] += total_seconds / len(task.tags)
+        
+        # Фильтруем нулевые значения и сортируем
+        stats = {k: v for k, v in stats.items() if v > 0}
+        return dict(sorted(stats.items(), key=lambda item: item[1], reverse=True))
+    
+    def create_pie_chart(self, data, title):
+        if not data:
+            return ft.Column([
+                ft.Text(title, size=18, weight=ft.FontWeight.BOLD),
+                ft.Text("No data available", style=ft.TextStyle(italic=True)),
+                ft.Divider()
+            ])
+        
+        total = sum(data.values())
+        colors = [
+            ft.Colors.BLUE,
+            ft.Colors.GREEN,
+            ft.Colors.AMBER,
+            ft.Colors.RED,
+            ft.Colors.PURPLE,
+            ft.Colors.CYAN,
+            ft.Colors.ORANGE,
+            ft.Colors.PINK,
+            ft.Colors.TEAL,
+            ft.Colors.INDIGO,
+        ]
+        
+        # Создаем секции диаграммы
+        sections = []
+        legend_items = []
+        
+        for i, (label, value) in enumerate(data.items()):
+            percentage = (value / total) * 100
+            color = colors[i % len(colors)]
+            
+            sections.append(
+                ft.PieChartSection(
+                    value=percentage,
+                    color=color,
+                    title=f"{percentage:.1f}%",
+                    title_style=ft.TextStyle(
+                        color=ft.Colors.WHITE,
+                        size=12,
+                        weight=ft.FontWeight.BOLD
+                    ),
+                    radius=100,
+                )
+            )
+            #time = self.format_time(value)
+            legend_items.append(
+                ft.Row([
+                    ft.Container(
+                        width=20,
+                        height=20,
+                        bgcolor=color,
+                        border_radius=5,
+                        # time = self.format_time(value)
+                        margin=ft.margin.only(right=5),
+                        content=ft.Text(f"{label} ({self.format_time(value)})"))
+                ])
+            )
+        
+        chart = ft.PieChart(
+            sections=sections,
+            sections_space=1,
+            center_space_radius=40,
+            height=200,
+            width=200,
+        )
+        
+        return ft.Column([
+            ft.Text(title, size=18, weight=ft.FontWeight.BOLD),
+            ft.Row(
+                [
+                    chart,
+                    ft.Column(legend_items, spacing=5)
+                ],
+                spacing=20,
+                alignment=ft.MainAxisAlignment.CENTER
+            ),
+            ft.Divider()
+        ])
+    
+    def format_time(self, seconds):
+        hours = int(seconds // 3600)
+        minutes = int((seconds % 3600) // 60)
+        return f"{hours}h {minutes}m"
+
+    
+    #statiatics end
+
     async def update_timer(self):
         while True:
             if self.active_task:
@@ -131,6 +281,7 @@ class TimeTrackerApp:
         self.update_dropdowns()
         self.update_tags()
         self.update_task_list()
+        self.update_stats_view()
         self.page.update()
 
     def update_dropdowns(self):
