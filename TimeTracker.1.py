@@ -231,9 +231,9 @@ class TimeTrackerApp:
         chart = ft.PieChart(
             sections=sections,
             sections_space=1,
-            center_space_radius=40,
-            height=200,
-            width=200,
+            center_space_radius=30,
+            height=300,
+            width=300,
         )
         
         return ft.Column([
@@ -459,8 +459,9 @@ class TimeTrackerApp:
                     for task in self.tasks:
                         if task.project == project:
                             task.project = new_name
+                    self.save_data()
                     refresh_list()
-                    self.close_dialog()
+                    self.close_dialog(dialog)
 
             edit_input = ft.TextField(value=project)
             
@@ -477,11 +478,10 @@ class TimeTrackerApp:
         def refresh_list():
             projects_list.controls = [
                 ft.ListTile(
-                    # leading = ft.Icon(ft.Icons.BOOK),
-                    # title=ft.Text(''),
+                    title=ft.Text(''),
                     trailing=ft.Row([
                         ft.Text(p, size=20),
-                        ft.IconButton(icon=ft.Icons.EDIT, on_click=lambda e, p=p: edit_project(p)),
+                        #ft.IconButton(icon=ft.Icons.EDIT, on_click=lambda e, p=p: edit_project(p)),
                         ft.IconButton(icon=ft.Icons.DELETE, on_click=lambda e, p=p: delete_project(p)),
                     ])
                 )
@@ -503,7 +503,7 @@ class TimeTrackerApp:
             self.close_dialog(dialog)
 
         dialog = ft.AlertDialog(
-            title=ft.Text("Manage Projects"),
+            title=ft.Text("Manage Projects                                                              "),
             content=ft.Column([
                 ft.Text("Existing Projects:"),
                 projects_list,
@@ -567,7 +567,7 @@ class TimeTrackerApp:
                     #title=ft.Text(t),
                     trailing=ft.Row([
                         ft.Text(t, size=20),
-                        ft.IconButton(icon=ft.Icons.EDIT, on_click=lambda e, t=t: edit_tag(t)),
+                        #ft.IconButton(icon=ft.Icons.EDIT, on_click=lambda e, t=t: edit_tag(t)),
                         ft.IconButton(icon=ft.Icons.DELETE, on_click=lambda e, t=t: delete_tag(t)),
                     ]),
                 )
@@ -589,7 +589,7 @@ class TimeTrackerApp:
             self.close_dialog(dialog)
 
         dialog = ft.AlertDialog(
-            title=ft.Text("Manage Tags"),
+            title=ft.Text("Manage Tags                                                              "),
             content=ft.Column([
                 ft.Text("Existing Tags:"),
                 tags_list,
@@ -640,7 +640,7 @@ class TimeTrackerApp:
                 title=ft.Text("Edit Life Area"),
                 content=edit_input,
                 actions=[
-                    ft.TextButton("Save", on_click=save_edit),
+                    ft.TextButton("Save", on_click=save_edit(e)),
                     ft.TextButton("Cancel", on_click=lambda e:self.close_dialog(dialog)),
                 ]
             )
@@ -652,9 +652,10 @@ class TimeTrackerApp:
                     #title=ft.Text(la),
                     trailing=ft.Row([
                         ft.Text(la, size=20),
-                        ft.IconButton(icon=ft.Icons.EDIT, on_click=lambda e, la=la: edit_life_area(la)),
+                        #ft.IconButton(icon=ft.Icons.EDIT, on_click=lambda e, la=la: edit_life_area(la)),
                         ft.IconButton(icon=ft.Icons.DELETE, on_click=lambda e, la=la: delete_life_area(la)),
                     ]),
+                    #content_padding=ft.padding.symmetric(horizontal=16)
                 )
                 for la in sorted(life_areas)
             ]
@@ -674,7 +675,7 @@ class TimeTrackerApp:
             self.close_dialog(dialog)
 
         dialog = ft.AlertDialog(
-            title=ft.Text("Manage Life Areas"),
+            title=ft.Text("Manage Life Areas                                                              "),
             content=ft.Column([
                 ft.Text("Existing Life Areas:"),
                 la_list,
@@ -682,6 +683,8 @@ class TimeTrackerApp:
                 ft.Text("Add New Life Area:"),
                 ft.Row([new_la_input, add_btn]),
             ]),
+            inset_padding= ft.padding.symmetric(vertical=10, horizontal=10),
+            content_padding= ft.padding.all(20),
             actions=[
                 ft.TextButton("Save", on_click=save_life_areas),
                 ft.TextButton("Cancel", on_click= lambda e: self.close_dialog(dialog)),
