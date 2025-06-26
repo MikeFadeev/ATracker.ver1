@@ -477,11 +477,13 @@ class TimeTrackerApp:
         def refresh_list():
             projects_list.controls = [
                 ft.ListTile(
-                    title=ft.Text(p),
+                    # leading = ft.Icon(ft.Icons.BOOK),
+                    # title=ft.Text(''),
                     trailing=ft.Row([
+                        ft.Text(p, size=20),
                         ft.IconButton(icon=ft.Icons.EDIT, on_click=lambda e, p=p: edit_project(p)),
                         ft.IconButton(icon=ft.Icons.DELETE, on_click=lambda e, p=p: delete_project(p)),
-                    ]),
+                    ])
                 )
                 for p in sorted(projects)
             ]
@@ -513,6 +515,7 @@ class TimeTrackerApp:
                 ft.TextButton("Save", on_click=save_projects),
                 ft.TextButton("Cancel", on_click=lambda e: self.close_dialog(dialog)),
             ],
+            #content_padding=ft.padding.all(10)
         )
         self.open_dialog(dialog)
 
@@ -561,8 +564,9 @@ class TimeTrackerApp:
         def refresh_list():
             tags_list.controls = [
                 ft.ListTile(
-                    title=ft.Text(t),
+                    #title=ft.Text(t),
                     trailing=ft.Row([
+                        ft.Text(t, size=20),
                         ft.IconButton(icon=ft.Icons.EDIT, on_click=lambda e, t=t: edit_tag(t)),
                         ft.IconButton(icon=ft.Icons.DELETE, on_click=lambda e, t=t: delete_tag(t)),
                     ]),
@@ -645,8 +649,9 @@ class TimeTrackerApp:
         def refresh_list():
             la_list.controls = [
                 ft.ListTile(
-                    title=ft.Text(la),
+                    #title=ft.Text(la),
                     trailing=ft.Row([
+                        ft.Text(la, size=20),
                         ft.IconButton(icon=ft.Icons.EDIT, on_click=lambda e, la=la: edit_life_area(la)),
                         ft.IconButton(icon=ft.Icons.DELETE, on_click=lambda e, la=la: delete_life_area(la)),
                     ]),
